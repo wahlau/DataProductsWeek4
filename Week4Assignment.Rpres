@@ -1,0 +1,65 @@
+Week 4 Assignment: Using Shiny with the Chatterjee-Price Attitude Dataset
+========================================================
+author: Sian Lun Lau
+date: 13th March 2017
+autosize: true
+
+Overview of the assignment
+========================================================
+
+A Shiny application was developed to plot k-means clusters for the Chatterjee-Price Attitude Dataset (available in the  library(datasets) package). Users can choose:
+
+- Two variables from the dataset for the intended clustering
+- Number of clusters
+- The size of the points
+
+ui.R - the sidebarPanel and mainPanel
+========================================================
+
+```{r, eval=FALSE}
+sidebarPanel(
+    selectInput('xcol', 'X Variable', names(attitude)),
+    selectInput('ycol', 'Y Variable', names(attitude),
+                selected=names(attitude)[[2]]),
+    sliderInput('clusters', 'Cluster count',
+                 min = 1, max = 11, value = 6),
+    sliderInput("size", "Size",
+                min = 1, max = 5, value = 3
+    )
+  ),
+  mainPanel(
+    plotOutput('plot1')
+  )
+```
+
+server.R - using reactive()
+========================================================
+
+```{r, eval=FALSE}
+  selectedData <- reactive({
+    attitude[, c(input$xcol, input$ycol)]
+  })
+  
+  clusters <- reactive({
+    kmeans(selectedData(), input$clusters)
+  })
+```
+
+The shiny application 
+========================================================
+An example plot if x-axis and y-axis are rating and complaints respectively, and k = 6 and point size is 4.
+
+```{r, echo = FALSE}
+library(datasets)
+selectedData <- attitude[,c("rating", "complaints")]
+clusters <- kmeans(selectedData, 6)
+palette(c("#E41A1C", "#377EB8", "#4DAF4A", "#984EA3",
+                "#FF7F00", "#FFFF33", "#A65628", "#F781BF", "#999999"))
+par(pin = c(4, 3), mar = c (5.1,4.1, 0, 1))
+plot(selectedData, col = clusters$cluster,
+           pch = 20, cex = 4)
+points(clusters$centers, pch = 4, cex = 4, lwd = 4)
+```
+
+To view the Shiny app, visit: https://wahlau.shinyapps.io/Week4Assignment/
+
